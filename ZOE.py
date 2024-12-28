@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 import time
 import wav
 import RPi.GPIO as GPIO
@@ -38,7 +39,7 @@ def main(args):
     GPIO.output(LED5,GPIO.LOW)
 
     POWER_13_14 = 17
-    PWM_7 = 27
+    PWM_7 = 22
 
     INPUT1 = 2
     INPUT2 = 3
@@ -50,12 +51,25 @@ def main(args):
     GPIO.setup(PWM_7, GPIO.OUT)
     pin = GPIO.PWM(PWM_7, 100) #100Hz
     pin.start(0)
-    pin.ChangeDutyCycle(20)
+    pin.ChangeDutyCycle(0)
+    
+    time.sleep(4)
+    sound = wav.SOUND2()
+    time.sleep(4)
 
     GPIO.setup(POWER_13_14, GPIO.OUT)
     GPIO.output(POWER_13_14,GPIO.HIGH)
     print("power on")
-    time.sleep(5)
+    sound.playCount()
+    time.sleep(1)
+    sound.playCount()
+    time.sleep(1)
+    sound.playCount()
+    time.sleep(1)
+    sound.playCount()
+    time.sleep(1)
+    sound.playCount()
+    time.sleep(1)
     print("power start")
     GPIO.output(POWER_13_14,GPIO.LOW)
     pin.ChangeDutyCycle(15)
@@ -65,7 +79,7 @@ def main(args):
     pin.ChangeDutyCycle(18)
     startTime = time.time()
 
-    modeSecEach = [8,8,8,8,8, 8,6,6,8,8, 8,4,4,4,8, 8]
+    modeSecEach = [2,2,2,2,2, 2,2,1,6,14, 16,4,4,4,4, 4]
     modeSec = []
     a = 0
     for i in modeSecEach:
@@ -95,7 +109,6 @@ def main(args):
     mode = [0,0,0,0,0]
     check = True
 
-    s = wav.SOUND()
     count = 0
     while(1):
         if GPIO.input(INPUT1):
@@ -109,11 +122,13 @@ def main(args):
                 if sum(mode) > 0:
                     #if count % (30/int(sum(mode)/2+1)) == 0:
                     if count % 30 == 0:
-                        s.play()
+                        sound.play()
         if check:
             checkTime = time.time() - startTime
             if checkTime >= modeSec[modeIdx]:
                 if modeIdx == 0:
+                    pin.ChangeDutyCycle(16)
+                if modeIdx == 1:
                     pin.ChangeDutyCycle(18)
                 if modeIdx == 6:
                     pin.ChangeDutyCycle(20)
@@ -126,19 +141,26 @@ def main(args):
                 if modeIdx == 12:
                     pin.ChangeDutyCycle(18)
                 if modeIdx == 13:
-                    pin.ChangeDutyCycle(17)
+                    pin.ChangeDutyCycle(18)
                 if modeIdx == 14:
-                    pin.ChangeDutyCycle(16)
+                    pin.ChangeDutyCycle(18)
                 if modeIdx == len(modeList):
-                    break
-                mode = modeList[modeIdx]
-                modeIdx += 1
-                print(mode)
+                    pin.ChangeDutyCycle(0)
+                    mode = [0,0,0,0,0]
+                    check = True
+                    startTime = time.time()
+                    modeIdx = 0
+                    #break
+                else:
+                    mode = modeList[modeIdx]
+                    modeIdx += 1
+                    print(mode)
                 
     #pin.ChangeDutyCycle(17)
     #time.sleep(1)
     #pin.ChangeDutyCycle(15)
     #time.sleep(1)
+    #os.system("sudo -u pi python /home/pi/ZOE/ZOE.py")
 
 
 if __name__ == "__main__":

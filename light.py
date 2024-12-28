@@ -9,7 +9,11 @@ def main(args):
     GPIO.setmode(GPIO.BCM)
     INPUT1 = 2
     INPUT2 = 3
-    #INPUT1 = INPUT2
+    if len(args) > 1:
+        print("INPUT 2")
+        INPUT1 = INPUT2
+    else:
+        print("INPUT 1")
     LED = 4
     GPIO.setup(INPUT1,GPIO.IN)
     GPIO.setup(INPUT2,GPIO.IN)
